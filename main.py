@@ -12,4 +12,4 @@ if __name__ == '__main__':
     sys.exit(stcli.main())
     # test = request_builder.SessionManager()
     # test2 = test.db_scheme()
-    # print(test2)
+    #

@@ -1,8 +1,9 @@
-"""Streamlit ui as first iteration"""
+"""Streamlit ui as first iteration
 
-# for most cases, ui to call request_builder.py classes/methods,
-# which will then articulate it to the other moduls
-# session state setup at start to include hide/show operator keys
+for most cases, ui to call request_builder.py classes/methods,
+which will then articulate it to the other moduls
+session state setup at start to include hide/show operator keys
+"""
 
 import streamlit as st
 
@@ -168,34 +169,3 @@ if st.session_state["Settings"]:
         # finally:
         #     st_state_changer("DBSettings")
 
-
-
-# if db not selected/initiated, config window to pop up
-
-# general menu options as root:
-# view, update
-# further down/away should be the settings/config section
-
-# view: popups "view holdings summary", "check table", these should have button to make them stick even if new is opened
-#   check table should be selectable, along with other potential options
-#   chart for visual display should be among the options, also for holding summary
-#   filtering and date/etc settings should be available
-
-# update: popups for "add trade", "add cash movement", "add account", update prices (manual vs api), update rates (manual vs api)
-#   these should have their own forms of course. Potentially dynamically generated
-
-# settings/config:
-#   db name and path and scheme setup
-#   creeate new db
-#   save/undo actions
-#   edit tables
-#
-
-
-
-# Views: quick summary
-# col1, col2, col3 = st.columns(3)
-
-
-def run_streamlit_ui():
-    raise NotImplemented

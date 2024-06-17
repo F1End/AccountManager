@@ -1,0 +1,122 @@
+database:
+  name: accounts_db
+  tables:
+    accounts:
+      columns:
+        - name: id
+          type: INTEGER
+          primary_key: true
+        - name: short_name
+          type: TEXT
+        - name: provider
+          type: TEXT
+        - name: active
+          type: INTEGER
+        - name: change_date
+          type: TEXT
+    securities:
+      columns:
+        - name: sec_id
+          type: INTEGER
+          primary_key: true
+        - name: isin_or_fx
+          type: TEXT
+        - name: short_name
+          type: TEXT
+        - name: full_name
+          type: TEXT
+        - name: type
+          type: TEXT
+        - name: subtype
+          type: TEXT
+        - name: recorded_date
+          type: TEXT
+    transactions:
+      columns:
+        - name: tr_id
+          type: INTEGER
+          primary_key: true
+        - name: sec_id
+          type: INTEGER
+        - name: acc_id
+          type: INTEGER
+        - name: date
+          type: TEXT
+        - name: type
+          type: TEXT
+        - name: quantity
+          type: INTEGER
+        - name: unit_price
+          type: REAL
+        - name: total_price
+          type: REAL
+        - name: costs
+          type: REAL
+        - name: currency
+          type: TEXT
+        - name: recorded_date
+          type: TEXT
+    fx_rates:
+      columns:
+        - name: nominator
+          type: TEXT
+        - name: denominator
+          type: TEXT
+        - name: rate
+          type: REAL
+        - name: date
+          type: TEXT
+        - name: source
+          type: TEXT
+        - name: entry_date
+          type: TEXT
+    prices:
+      columns:
+        - name: sec_id
+          type: INTEGER
+        - name: date
+          type: TEXT
+        - name: unit_price
+          type: REAL
+        - name: source
+          type: TEXT
+        - name: entry_date
+          type: TEXT
+    positions:
+      columns:
+        - name: date
+          type: TEXT
+        - name: acc_id
+          type: INTEGER
+        - name: sec_id
+          type: INTEGER
+        - name: quantity
+          type: INTEGER
+    holdings:
+      columns:
+        - name: acc_id
+          type: INTEGER
+        - name: sec_id
+          type: INTEGER
+        - name: account
+          type: TEXT
+        - name: security
+          type: TEXT
+        - name: date
+          type: TEXT
+        - name: type
+          type: TEXT
+        - name: subtype
+          type: TEXT
+        - name: quantity
+          type: INTEGER
+        - name: unit_price
+          type: REAL
+        - name: total_price
+          type: REAL
+    types:
+      columns:
+        - name: category
+          type: TEXT
+        - name: option
+          type: TEXT

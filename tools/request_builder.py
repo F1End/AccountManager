@@ -61,6 +61,8 @@ class SessionManager:
         schema = raw_schema[["tbl_name", "tbl_scheme"]].copy()
         if type:
             table_name = self.tables[type]
+            schema = schema.loc[schema["tbl_name"] == table_name]
+        schema = {key: value for d in schema.set_index("tbl_name").to_dict().values() for key, value in d.items()}
         return schema
 
     def update_positions(self, acc_id: int, for_date: datetime,

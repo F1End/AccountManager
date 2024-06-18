@@ -64,7 +64,7 @@ class TestSessionManager_with_default_values(unittest.TestCase):
     def test_update_positions(self):
         input_id = 1
         input_filter = {'acc_id': 1}
-        date = datetime.datetime(2024,6,1)
+        date = datetime.datetime(2024, 6, 1)
         mock_transactions_dict = data = {
             'tr_id': [1, 2, 3, 4, 5, 6],
             'sec_id': [11, 11, 102, 103, 102, 11],
@@ -90,6 +90,31 @@ class TestSessionManager_with_default_values(unittest.TestCase):
         self.session_mgr.db_manager.to_dbtime.assert_has_calls(expected_dbtime_calls)
         self.session_mgr.db_manager.read_table.assert_called_with(self.session_mgr.tables["transactions"], filters=input_filter)
         self.session_mgr.db_manager.update_table.assert_has_calls(expected_update_table_calls)
+
+    def test_communicate_table_attributes(self):
+        db_return_value = pd.DataFrame({'type': {0: 'table', 1: 'table', 2: 'table', 3: 'table', 4: 'table', 5: 'table', 6: 'table', 7: 'table'},
+                                        'name': {0: 'accounts', 1: 'securities', 2: 'transactions', 3: 'fx_rates', 4: 'prices', 5: 'positions', 6: 'holdings', 7: 'types'},
+                                        'tbl_name': {0: 'accounts', 1: 'securities', 2: 'transactions', 3: 'fx_rates', 4: 'prices', 5: 'positions', 6: 'holdings', 7: 'types'},
+                                        'rootpage': {0: 2, 1: 3, 2: 4, 3: 5, 4: 6, 5: 7, 6: 8, 7: 9},
+                                        'sql': {0: 'CREATE TABLE accounts (id INTEGER PRIMARY KEY, short_name TEXT, provider TEXT, active INTEGER, change_date TEXT)', 1: 'CREATE TABLE securities (sec_id INTEGER PRIMARY KEY, isin_or_fx TEXT, short_name TEXT, full_name TEXT, type TEXT, subtype TEXT, recorded_date TEXT)', 2: 'CREATE TABLE transactions (tr_id INTEGER PRIMARY KEY, sec_id INTEGER, acc_id INTEGER, date TEXT, type TEXT, quantity INTEGER, unit_price REAL, total_price REAL, costs REAL, currency TEXT, recorded_date TEXT)', 3: 'CREATE TABLE fx_rates (nominator TEXT, denominator TEXT, rate REAL, date TEXT, source TEXT, entry_date TEXT)', 4: 'CREATE TABLE prices (sec_id INTEGER, date TEXT, unit_price REAL, source TEXT, entry_date TEXT)', 5: 'CREATE TABLE positions (date TEXT, acc_id INTEGER, sec_id INTEGER, quantity INTEGER)', 6: 'CREATE TABLE holdings (acc_id INTEGER, sec_id INTEGER, account TEXT, security TEXT, date TEXT, type TEXT, subtype TEXT, quantity INTEGER, unit_price REAL, total_price REAL)', 7: 'CREATE TABLE types (category TEXT, option TEXT)'}, 'tbl_scheme': {0: 'id INTEGER PRIMARY KEY, short_name TEXT, provider TEXT, active INTEGER, change_date TEXT', 1: 'sec_id INTEGER PRIMARY KEY, isin_or_fx TEXT, short_name TEXT, full_name TEXT, type TEXT, subtype TEXT, recorded_date TEXT', 2: 'tr_id INTEGER PRIMARY KEY, sec_id INTEGER, acc_id INTEGER, date TEXT, type TEXT, quantity INTEGER, unit_price REAL, total_price REAL, costs REAL, currency TEXT, recorded_date TEXT', 3: 'nominator TEXT, denominator TEXT, rate REAL, date TEXT, source TEXT, entry_date TEXT', 4: 'sec_id INTEGER, date TEXT, unit_price REAL, source TEXT, entry_date TEXT', 5: 'date TEXT, acc_id INTEGER, sec_id INTEGER, quantity INTEGER', 6: 'acc_id INTEGER, sec_id INTEGER, account TEXT, security TEXT, date TEXT, type TEXT, subtype TEXT, quantity INTEGER, unit_price REAL, total_price REAL', 7: 'category TEXT, option TEXT'}
+                                        })
+        self.session_mgr.db_manager.get_table_attributes.return_value = db_return_value
+        expected_schema = {'accounts': 'id INTEGER PRIMARY KEY, short_name TEXT, provider TEXT, active INTEGER, change_date TEXT',
+                           'securities': 'sec_id INTEGER PRIMARY KEY, isin_or_fx TEXT, short_name TEXT, full_name TEXT, type TEXT, subtype TEXT, recorded_date TEXT',
+                           'transactions': 'tr_id INTEGER PRIMARY KEY, sec_id INTEGER, acc_id INTEGER, date TEXT, type TEXT, quantity INTEGER, unit_price REAL, total_price REAL, costs REAL, currency TEXT, recorded_date TEXT',
+                           'fx_rates': 'nominator TEXT, denominator TEXT, rate REAL, date TEXT, source TEXT, entry_date TEXT',
+                           'prices': 'sec_id INTEGER, date TEXT, unit_price REAL, source TEXT, entry_date TEXT',
+                           'positions': 'date TEXT, acc_id INTEGER, sec_id INTEGER, quantity INTEGER',
+                           'holdings': 'acc_id INTEGER, sec_id INTEGER, account TEXT, security TEXT, date TEXT, type TEXT, subtype TEXT, quantity INTEGER, unit_price REAL, total_price REAL',
+                           'types': 'category TEXT, option TEXT'}
+        schema = self.session_mgr.communicate_table_attributes()
+        self.assertEqual(schema, expected_schema)
+        random_key = random.sample(sorted(expected_schema), 1)[0]
+        random_schema = {random_key: expected_schema[random_key]}
+        specified_table_schema = self.session_mgr.communicate_table_attributes(random_key)
+        self.assertEqual(random_schema, specified_table_schema)
+
+
 
 
 

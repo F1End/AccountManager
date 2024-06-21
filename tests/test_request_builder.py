@@ -111,6 +111,7 @@ class TestSessionManager_with_default_values(unittest.TestCase):
         self.assertEqual(schema, expected_schema)
         random_key = random.sample(sorted(expected_schema), 1)[0]
         random_schema = {random_key: expected_schema[random_key]}
+        print(f"Random key test on 'communicate_table_attributes': {random_key}")
         specified_table_schema = self.session_mgr.communicate_table_attributes(random_key)
         self.assertEqual(random_schema, specified_table_schema)
 

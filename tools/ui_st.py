@@ -50,6 +50,8 @@ centercols[1].caption(f"""Active database: {st.session_state["CurrentDB"]}""")
 
 lvl1_col1, lvl1_col2, lvl1_col3, lvl_col4 = st.columns(4)
 
+
+# top level menu items
 with lvl1_col1:
     if st.button("View"):
         st_state_changer("View")
@@ -66,7 +68,7 @@ with lvl_col4:
     if st.button("Settings"):
         st_state_changer("Settings")
 
-
+# popup menu for "View" options
 if st.session_state["View"]:
     st.divider()
     centercols = st.columns([3, 1, 3])
@@ -108,6 +110,7 @@ if st.session_state["View"]:
         finally:
             st_state_changer("Browse")
 
+# popup menu for "Edit" options
 if st.session_state["Edit"]:
     st.divider()
     centercols = st.columns([3, 1, 3])
@@ -118,12 +121,17 @@ if st.session_state["Edit"]:
         st.button("Add Trade")
         # Form with inputs pegged to function
     with col2:
-        st.button("Add Account")
+        if st.button("Add Account"):
+            st_state_changer("AddAccount")
         # Form with inputs pegged to function
     with col3:
         st.button("Add Cashflow")
         # Form with inputs pegged to function
+    if st.session_state["AddAccount"]:
+        sub_centercols = st.columns([1, 1, 1])
+        form = st.form("my_form")
 
+# popup menu for "Update" options
 if st.session_state["Update"]:
     st.divider()
     centercols = st.columns([3, 1, 3])
@@ -137,6 +145,7 @@ if st.session_state["Update"]:
         st.button("Auto Update")
         # TBD
 
+# popup menu for "Settings" options
 if st.session_state["Settings"]:
     st.divider()
     centercols = st.columns([3, 1, 3])

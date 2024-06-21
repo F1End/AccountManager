@@ -29,7 +29,7 @@ class SessionManager:
                                                                          self.default_db_name)
         self.db_manager = dbtools.dbManager(self.db_path) if init_db_manager else None
 
-    def initiate_db(self, db_path: Optional[str] = None, db_scheme: Optional[dict] = None):
+    def initiate_db(self, db_path: Optional[str] = None, db_scheme: Optional[dict] = None) -> None:
         if not self.db_manager or (self.db_path != db_path and db_path):
             self.db_path = db_path if db_path else self.db_path
             self.db_manager = dbtools.dbManager(self.db_path)
@@ -48,14 +48,14 @@ class SessionManager:
         for table, columns in scheme_dict['database']['tables'].items():
             self.db_manager.create_table(table, columns['columns'])
 
-    def add_entry(self, type: str, kwargs: dict):
+    def add_entry(self, type: str, kwargs: dict) -> None:
         table_name = self.tables[type]
         first_val_for_autoincrement = [None]
         timestamp_column = [self.db_manager.to_dbtime()]
         values = first_val_for_autoincrement + [val for val in kwargs.values()] + timestamp_column
         self.db_manager.update_table(table_name, values)
 
-    def communicate_table_attributes(self, type: Optional[str] = None):
+    def communicate_table_attributes(self, type: Optional[str] = None) -> dict:
         raw_schema = self.db_manager.get_table_attributes()
         raw_schema["tbl_scheme"] = raw_schema.apply(lambda row: row["sql"][(row["sql"].find("(") + 1):-1], axis=1)
         schema = raw_schema[["tbl_name", "tbl_scheme"]].copy()

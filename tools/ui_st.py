@@ -7,7 +7,7 @@ session state setup at start to include hide/show operator keys
 
 import streamlit as st
 
-from tools.util import st_state_changer
+from tools.util import st_state_changer, formfactory
 import  tools.request_builder as rb
 
 states = {"CurrentDB": None,
@@ -129,7 +129,9 @@ if st.session_state["Edit"]:
         # Form with inputs pegged to function
     if st.session_state["AddAccount"]:
         sub_centercols = st.columns([1, 1, 1])
-        form = st.form("my_form")
+        with st.form("my_form") as account_form:
+            values = formfactory(app_session.communicate_table_attributes("accounts"), "accounts", "Create Account")
+            st.write(values)
 
 # popup menu for "Update" options
 if st.session_state["Update"]:

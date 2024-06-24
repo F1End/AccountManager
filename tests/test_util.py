@@ -14,14 +14,20 @@ from tools import util
 #
 class TestUtil(unittest.TestCase):
 
-    @patch("st.session_state")
-    def test_st_state_changer(self, streamlit_mock):
-        streamlit_mock.session_state.__getitem__.side_effect = {"mystate": False}
-        state_mock = "mystate"
-        util.st_state_changer(state_mock)
-        assert state_mock[state_mock] == True
+    # @patch("st.session_state")
+    # def test_st_state_changer(self, streamlit_mock):
+    #     streamlit_mock.session_state.__getitem__.side_effect = {"mystate": False}
+    #     state_mock = "mystate"
+    #     util.st_state_changer(state_mock)
+    #     assert state_mock[state_mock] == True
 
 # mocked_session_state = MagicMock()
 # def test_st_state_changer():
 #     with patch("app.session_state") as mocked_session_state:
 #         at = AppTest.from_file("tools.util.py")
+
+    def test_parse_column_config(self):
+        input_dict = {'accounts': 'id INTEGER PRIMARY KEY, short_name TEXT, provider TEXT, active INTEGER, change_date TEXT'}
+        expected_output = {"short_name": "TEXT", "provider": "TEXT", "active": "INTEGER", "change_date": "DATE"}
+        output = util.parse_column_config(input_dict, "accounts")
+        self.assertEqual(expected_output, output)

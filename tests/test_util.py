@@ -5,29 +5,56 @@ from streamlit.testing.v1 import AppTest
 
 from tools import util
 
-# def test_st_state_changer():
-#     app = AppTest.from_file("tools.util.py")
-#     app.session_state["mystate"] == False
-#     # app.run()
-#     util.st_state_changer("mystate")
-#     assert app.session_state["mystate"] == True
-#
+
 class TestUtil(unittest.TestCase):
 
-    # @patch("st.session_state")
-    # def test_st_state_changer(self, streamlit_mock):
-    #     streamlit_mock.session_state.__getitem__.side_effect = {"mystate": False}
-    #     state_mock = "mystate"
-    #     util.st_state_changer(state_mock)
-    #     assert state_mock[state_mock] == True
-
-# mocked_session_state = MagicMock()
-# def test_st_state_changer():
-#     with patch("app.session_state") as mocked_session_state:
-#         at = AppTest.from_file("tools.util.py")
+    @patch("tools.util.st.session_state", new_callable=lambda: {})
+    def test_st_state_changer(self, streamlit_mock):
+        state_mock = "mystate"
+        streamlit_mock[state_mock] = False
+        util.st_state_changer(state_mock)
+        assert streamlit_mock[state_mock] is True
+        util.st_state_changer(state_mock)
+        assert streamlit_mock[state_mock] is False
 
     def test_parse_column_config(self):
-        input_dict = {'accounts': 'id INTEGER PRIMARY KEY, short_name TEXT, provider TEXT, active INTEGER, change_date TEXT'}
+        input_dict = {'accounts':
+                      'id INTEGER PRIMARY KEY, short_name TEXT, provider TEXT, active INTEGER, change_date TEXT'}
         expected_output = {"short_name": "TEXT", "provider": "TEXT", "active": "INTEGER", "change_date": "DATE"}
         output = util.parse_column_config(input_dict, "accounts")
         self.assertEqual(expected_output, output)
+
+    @patch("tools.util.parse_column_config")
+    @patch("tools.util.st")
+    def test_formfactory(self, streamlit_mock, parse_columns_mock):
+        table_config = {'accounts':
+                        'id INTEGER PRIMARY KEY, short_name TEXT, provider TEXT, active INTEGER, change_date TEXT'}
+        table_name = "test_table"
+        submit_text = "my_test_form"
+        parse_columns_mock.return_value = {"short_name": "TEXT",
+                                           "provider": "TEXT",
+                                           "active": "INTEGER",
+                                           "change_date": "DATE"}
+        text_input_return = "test_text_input_return"
+        date_input_return = "test_date_input_return"
+
+        streamlit_mock.text_input.return_value = text_input_return
+        streamlit_mock.date_input.return_value = date_input_return
+        streamlit_mock.form_submit_button.return_value = True
+
+        expected = {"short_name": text_input_return,
+                    "provider": text_input_return,
+                    "active": text_input_return,
+                    "change_date": date_input_return}
+
+        actual = util.formfactory(table_config, table_name, submit_text)
+
+        expected_calls = []
+        for key in ["short_name", "provider", "active"]:
+            expected_calls.append(call(key))
+
+        parse_columns_mock.assert_called_with(table_config, table_name)
+        streamlit_mock.text_input.assert_has_calls(expected_calls)
+        streamlit_mock.date_input.assert_called_with("change_date")
+        streamlit_mock.form_submit_button.assert_called_with(submit_text)
+        self.assertEqual(expected, actual)

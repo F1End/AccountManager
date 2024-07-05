@@ -68,7 +68,7 @@ class test_dbManager(unittest.TestCase):
         input_cols = ["col1", "col2", "col3", "col4"]
         table = "my_table"
         # expected = f"""INSERT INTO {table} VALUES ("val1", "val2", "val3", "val4")"""
-        expected = f"""INSERT INTO my_table(col1, col2, col3, col4) (?,?,?,?)"""
+        expected = f"""INSERT INTO my_table(col1, col2, col3, col4) VALUES(?,?,?,?)"""
         self.db_manager.update_table(table, input_val, input_cols)
         self.db_manager.cursor.execute.assert_called_with(expected, input_val)
         self.db_manager.conn.commit.assert_any_call()

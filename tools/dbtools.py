@@ -22,13 +22,13 @@ class dbManager:
             return data
 
     @staticmethod
-    def to_dbtime(self, time: Optional[datetime] = None) -> str:
+    def to_dbtime(time: Optional[datetime] = None) -> str:
         if not time:
             time = datetime.now()
         return time.isoformat()
 
     @staticmethod
-    def from_dbtime(self, time: str) -> datetime:
+    def from_dbtime(time: str) -> datetime:
         return datetime.fromisoformat(time)
 
     def create_db(self, db_path: os.path):
@@ -52,7 +52,8 @@ class dbManager:
     def update_table(self, table: str, values: list, cols: Optional[list] = None) -> None:
         columns = f"({', '.join([str(col) for col in cols])})" if cols else ""
         markers = ",".join("?" for val in values)
-        sql = f"""INSERT INTO {table}{columns} ({markers})"""
+        val_string = "VALUES" if cols else ""
+        sql = f"""INSERT INTO {table}{columns} {val_string}({markers})"""
         self.cursor.execute(sql, values)
         self.conn.commit()
 

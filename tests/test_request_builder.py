@@ -56,10 +56,24 @@ class TestSessionManager_with_default_values(unittest.TestCase):
         kwargs = {"val1": "value", "val2": 11, "val3": 35.59, "val4": "blah", "val5": False}
         type = "transactions"
         expected_tbl_name = self.session_mgr.tables[type]
-        expected_values = [None] + [val for val in kwargs.values()] + [timestamp]
+        expected_values = [val for val in kwargs.values()]
+        expected_columns = [col for col in kwargs.keys()]
         self.session_mgr.add_entry(type, kwargs)
+        self.session_mgr.db_manager.update_table.assert_called_with(expected_tbl_name, expected_values, expected_columns)
+
+    def test_add_entry_autotimestampp(self):
+        now = datetime.datetime.now()
+        timestamp = now.isoformat()
+        self.session_mgr.db_manager.to_dbtime.return_value = timestamp
+        kwargs = {"val1": "value", "val2": 11, "val3": 35.59, "val4": "blah", "val5": False}
+        type = "transactions"
+        expected_tbl_name = self.session_mgr.tables[type]
+        expected_values = [val for val in kwargs.values()] + [timestamp]
+        timestamp_col = ["change_time"]
+        expected_columns = [col for col in kwargs.keys()] + timestamp_col
+        self.session_mgr.add_entry(type, kwargs, timestamp_col)
         self.session_mgr.db_manager.to_dbtime.assert_any_call()
-        self.session_mgr.db_manager.update_table.assert_called_with(expected_tbl_name, expected_values)
+        self.session_mgr.db_manager.update_table.assert_called_with(expected_tbl_name, expected_values, expected_columns)
 
     def test_update_positions(self):
         input_id = 1

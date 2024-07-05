@@ -24,6 +24,7 @@ class SessionManager:
                        "prices": "prices",
                        "aggregates": "aggregates",
                        "fx_rates": "fx_rates",
+                       "types": "types"
                        }
         self.db_path = self.default_db_path if db_path else os.path.join(self.default_db_path,
                                                                          self.default_db_name)
@@ -48,12 +49,15 @@ class SessionManager:
         for table, columns in scheme_dict['database']['tables'].items():
             self.db_manager.create_table(table, columns['columns'])
 
-    def add_entry(self, type: str, kwargs: dict) -> None:
+    def add_entry(self, type: str, kwargs: dict, auto_timestamp_col: Optional[str] = None) -> None:
         table_name = self.tables[type]
-        first_val_for_autoincrement = [None]
-        timestamp_column = [self.db_manager.to_dbtime()]
-        values = first_val_for_autoincrement + [val for val in kwargs.values()] + timestamp_column
-        self.db_manager.update_table(table_name, values)
+        columns = [col for col in kwargs.keys()]
+        values = [val for val in kwargs.values()]
+        if auto_timestamp_col:
+            timestamp_column = [self.db_manager.to_dbtime()]
+            columns += auto_timestamp_col
+            values += timestamp_column
+        self.db_manager.update_table(table_name, values, columns)
 
     def communicate_table_attributes(self, type: Optional[str] = None) -> dict:
         raw_schema = self.db_manager.get_table_attributes()
@@ -77,6 +81,10 @@ class SessionManager:
         for index, row in aggregated.iterrows():
             values = [self.db_manager.to_dbtime(for_date), acc_id, int(row['sec_id']), int(row["quantity"])]
             self.db_manager.update_table(self.tables["positions"], values)
+
+    def read(self, table: str) -> pd.DataFrame:
+        df = self.db_manager.read_table(table=table)
+        return df
 
     def generate_summary(self) -> pd.DataFrame:
         raise NotImplemented

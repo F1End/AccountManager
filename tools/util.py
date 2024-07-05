@@ -2,6 +2,8 @@ import re
 
 import streamlit as st
 
+from tools.dbtools import dbManager
+
 
 def st_state_changer(state_value: str):
     """Cycle between True/False for a session state with the same button"""
@@ -39,7 +41,8 @@ def formfactory(table_config: dict, table_name, submit_text: str) -> dict:
             values[key] = input_value
         elif value in ("DATE"):
             input_value = st.date_input(key)
-            values[key] = input_value
+            db_time = dbManager.to_dbtime(input_value)
+            values[key] = db_time
     submitted = st.form_submit_button(submit_text)
     if submitted:
         return values

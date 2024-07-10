@@ -120,3 +120,5 @@ database:
           type: TEXT
         - name: option
           type: TEXT
+        - name: value
+          type: TEXT

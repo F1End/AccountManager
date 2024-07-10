@@ -3,6 +3,7 @@ import re
 import streamlit as st
 
 from tools.dbtools import dbManager
+from tools.request_builder import SessionManager
 
 
 def st_state_changer(state_value: str):
@@ -39,6 +40,9 @@ def formfactory(table_config: dict, table_name, submit_text: str) -> dict:
         elif value in ("INTEGER"):
             input_value = st.text_input(key)
             values[key] = input_value
+        elif value in ("REAL"):
+            input_value = st.number_input(key)
+            values[key] = input_value
         elif value in ("DATE"):
             input_value = st.date_input(key)
             db_time = dbManager.to_dbtime(input_value)
@@ -46,3 +50,9 @@ def formfactory(table_config: dict, table_name, submit_text: str) -> dict:
     submitted = st.form_submit_button(submit_text)
     if submitted:
         return values
+
+def columns_value_options_from_db(table_nane: str, column_name: str, session_mngr: SessionManager) -> list:
+    df = session_mngr.read(session_mngr.tables["types"])
+    df = df[(df["category"] == table_nane + "_col_values") & (df["option"] == column_name)]
+    return df["value"].to_list()
+

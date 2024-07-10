@@ -105,8 +105,8 @@ if st.session_state["View"]:
         centercols = st.columns([1, 1, 1])
         try:
             # table selection -> returning content dataframe, in future add filters?
-            test = app_session.communicate_table_attributes("accounts")
-            print(test.to_string())
+            test = app_session.read("transactions")
+            st.dataframe(test)
         finally:
             st_state_changer("Browse")
 
@@ -118,7 +118,8 @@ if st.session_state["Edit"]:
 
     col1,col2,col3 = st.columns(3)
     with col1:
-        st.button("Add Trade")
+        if st.button("Add Trade"):
+            st_state_changer("AddTrade")
         # Form with inputs pegged to function
     with col2:
         if st.button("Add Account"):
@@ -131,7 +132,17 @@ if st.session_state["Edit"]:
         sub_centercols = st.columns([1, 1, 1])
         with st.form("my_form") as account_form:
             values = formfactory(app_session.communicate_table_attributes("accounts"), "accounts", "Create Account")
-            st.write(values)
+            if values:
+                st.write(values)
+                app_session.add_entry("accounts", values)
+
+    if st.session_state["AddTrade"]:
+        sub_centercols = st.columns([1, 1, 1])
+        with st.form("my_form") as account_form:
+            values = formfactory(app_session.communicate_table_attributes("transactions"), "transactions", "Record Trade")
+            if values:
+                st.write(values)
+                app_session.add_entry("transactions", values)
 
 # popup menu for "Update" options
 if st.session_state["Update"]:

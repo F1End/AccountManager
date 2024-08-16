@@ -7,7 +7,7 @@ session state setup at start to include hide/show operator keys
 
 import streamlit as st
 
-from tools.util import st_state_changer, formfactory
+from tools.util import st_state_changer, formfactory, show_any_tbl
 import  tools.request_builder as rb
 
 states = {"CurrentDB": None,
@@ -24,8 +24,10 @@ states = {"CurrentDB": None,
           "AutoUpdate": False,
           "Settings": False,
           "DBSettings": False,
-          "OtherSettings": False
-          }
+          "OtherSettings": False,
+          "Browse-Show": False,
+          "Browse-Edit": False,
+          "Browse-Add": False}
 
 for state, value in states.items():
     if state not in st.session_state:
@@ -103,12 +105,8 @@ if st.session_state["View"]:
 
     if st.session_state["Browse"]:
         centercols = st.columns([1, 1, 1])
-        try:
-            # table selection -> returning content dataframe, in future add filters?
-            test = app_session.read("transactions")
-            st.dataframe(test)
-        finally:
-            st_state_changer("Browse")
+
+        show_any_tbl(app_session)
 
 # popup menu for "Edit" options
 if st.session_state["Edit"]:
@@ -130,16 +128,16 @@ if st.session_state["Edit"]:
         # Form with inputs pegged to function
     if st.session_state["AddAccount"]:
         sub_centercols = st.columns([1, 1, 1])
-        with st.form("my_form") as account_form:
-            values = formfactory(app_session.communicate_table_attributes("accounts"), "accounts", "Create Account")
+        with st.form("add_account_form") as account_form:
+            values = formfactory("accounts", "Create Account", app_session)
             if values:
                 st.write(values)
                 app_session.add_entry("accounts", values)
 
     if st.session_state["AddTrade"]:
         sub_centercols = st.columns([1, 1, 1])
-        with st.form("my_form") as account_form:
-            values = formfactory(app_session.communicate_table_attributes("transactions"), "transactions", "Record Trade")
+        with st.form("add_trade_form") as account_form:
+            values = formfactory("transactions", "Record Trade", app_session)
             if values:
                 st.write(values)
                 app_session.add_entry("transactions", values)

@@ -29,6 +29,7 @@ class SessionManager:
         self.db_path = self.default_db_path if db_path else os.path.join(self.default_db_path,
                                                                          self.default_db_name)
         self.db_manager = dbtools.dbManager(self.db_path) if init_db_manager else None
+        # self.db_manager = dbmanager_instance
 
     def initiate_db(self, db_path: Optional[str] = None, db_scheme: Optional[dict] = None) -> None:
         if not self.db_manager or (self.db_path != db_path and db_path):
@@ -69,6 +70,10 @@ class SessionManager:
         schema = {key: value for d in schema.set_index("tbl_name").to_dict().values() for key, value in d.items()}
         return schema
 
+    def list_of_tables_in_db(self) -> list:
+        scheme_dict = self.communicate_table_attributes()
+        return [key for key in scheme_dict.keys()]
+
     def update_positions(self, acc_id: int, for_date: datetime,
                          from_transaction_date: Optional[datetime] = None,
                          from_latest_holding: Optional[datetime] = None):
@@ -101,8 +106,12 @@ class SessionManager:
     def add_sec_info(self):
         raise NotImplemented
 
-    def aggregate_accounts(self):
+    def aggregate_accounts(self, date, account):
         raise NotImplemented
+        # collect open positions
+        # get prices
+        # get FX rates
+        # aggregate
 
     def get_holdings(self, date: datetime.datetime) -> pd.DataFrame:
         raise NotImplemented

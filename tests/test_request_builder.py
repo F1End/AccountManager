@@ -129,9 +129,20 @@ class TestSessionManager_with_default_values(unittest.TestCase):
         specified_table_schema = self.session_mgr.communicate_table_attributes(random_key)
         self.assertEqual(random_schema, specified_table_schema)
 
-
-
-
+    @patch("tools.request_builder.SessionManager.communicate_table_attributes")
+    def test_list_of_tables_in_db(self, mock_communicate_tbl_att):
+        tables_scheme_dict = {'accounts': 'id INTEGER PRIMARY KEY, short_name TEXT, provider TEXT, active INTEGER, change_date TEXT',
+                           'securities': 'sec_id INTEGER PRIMARY KEY, isin_or_fx TEXT, short_name TEXT, full_name TEXT, type TEXT, subtype TEXT, recorded_date TEXT',
+                           'transactions': 'tr_id INTEGER PRIMARY KEY, sec_id INTEGER, acc_id INTEGER, date TEXT, type TEXT, quantity INTEGER, unit_price REAL, total_price REAL, costs REAL, currency TEXT, recorded_date TEXT',
+                           'fx_rates': 'nominator TEXT, denominator TEXT, rate REAL, date TEXT, source TEXT, entry_date TEXT',
+                           'prices': 'sec_id INTEGER, date TEXT, unit_price REAL, source TEXT, entry_date TEXT',
+                           'positions': 'date TEXT, acc_id INTEGER, sec_id INTEGER, quantity INTEGER',
+                           'holdings': 'acc_id INTEGER, sec_id INTEGER, account TEXT, security TEXT, date TEXT, type TEXT, subtype TEXT, quantity INTEGER, unit_price REAL, total_price REAL',
+                           'types': 'category TEXT, option TEXT'}
+        expected = [key for key in tables_scheme_dict.keys()]
+        mock_communicate_tbl_att.return_value = tables_scheme_dict
+        returned = self.session_mgr.list_of_tables_in_db()
+        self.assertEqual(expected, returned)
 
 
 

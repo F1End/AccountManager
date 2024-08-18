@@ -66,8 +66,8 @@ class TestUtil(unittest.TestCase):
         streamlit_mock.form_submit_button.assert_called_with(submit_text)
         self.assertEqual(expected, actual)
 
-    def columns_value_options_from_db_side_effect(self, table, col, session):
-        if col == "active":
+    def columns_value_options_from_db_side_effect(self, table_name, column_name, session_mngr):
+        if column_name == "active":
             return [1, 0]
         else:
             return []
@@ -94,7 +94,7 @@ class TestUtil(unittest.TestCase):
 
         streamlit_mock.text_input.return_value = text_input_return
         streamlit_mock.date_input.return_value = date_input_return
-        streamlit_mock.selectbox.return_value = date_input_return
+        streamlit_mock.selectbox.return_value = select_box_return
         streamlit_mock.form_submit_button.return_value = 1
 
         expected = {"short_name": text_input_return,

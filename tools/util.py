@@ -36,7 +36,7 @@ def formfactory(table_name: str, submit_text: str, session_mgr: SessionManager) 
     values = {}
     for key, value in parsed_config.items():
         # print(f"Running for {key} and {value}")
-        value_options = columns_value_options_from_db(table_nane=table_name, column_name=key, session_mngr=session_mgr)
+        value_options = columns_value_options_from_db(table_name=table_name, column_name=key, session_mngr=session_mgr)
         if len(value_options):
             print("I am in selection")
             input_value = st.selectbox(value_options)
@@ -58,9 +58,9 @@ def formfactory(table_name: str, submit_text: str, session_mgr: SessionManager) 
     if submitted:
         return values
 
-def columns_value_options_from_db(table_nane: str, column_name: str, session_mngr: SessionManager) -> list:
+def columns_value_options_from_db(table_name: str, column_name: str, session_mngr: SessionManager) -> list:
     df = session_mngr.read(session_mngr.tables["types"])
-    df = df[(df["category"] == table_nane + "_col_values") & (df["option"] == column_name)]
+    df = df[(df["category"] == table_name + "_col_values") & (df["option"] == column_name)]
     if not df.empty:
         return df["value"].to_list()
     return []
@@ -116,20 +116,6 @@ def append_table(session_mngr: SessionManager) -> None:
         print(f"Values to be written: {values}")
         st.write(values)
         session_mngr.add_entry(table_to_append, values)
-
-
-    ##! store selection as session state after button click (not to disappear after change)
-    # submitted = st.form_submit_button(f"Show {selected_table}")
-    # if st.button("View table"):
-    # # print(f"Selected: {selected_table}")
-    #     table_df = session_mngr.read(selected_table)
-    #     st.dataframe(table_df)
-    # display as selector
-        #   add button to call selected
-    # get data from selected
-    # display selected
-    # display buttons (at this state or different?) for add/edit/delete
-    # return selected_table
 
 def confirm_delete():
     raise NotImplemented

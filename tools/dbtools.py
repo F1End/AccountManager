@@ -11,6 +11,7 @@ class dbManager:
     def __init__(self, db_path: os.path) -> None:
         self.db = db_path
         self.conn = sqlite3.connect(db_path)
+        self.conn.execute("PRAGMA foreign_keys = ON")
         self.cursor = self.conn.cursor()
 
     def _run_custom_query(self, sql: str, commit: bool = True, fetch_return: bool = False) -> Optional[tuple]:
@@ -43,6 +44,7 @@ class dbManager:
                        columns]
         columns_def_str = ", ".join(columns_def)
         sql = f"""CREATE TABLE IF NOT EXISTS {table_name} ({columns_def_str})"""
+        print(sql)
         self.cursor.execute(sql)
         self.conn.commit()
 

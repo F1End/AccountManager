@@ -13,14 +13,18 @@ def st_state_changer(state_value: str, ):
     else:
         st.session_state[state_value] = True
 
-
 def parse_column_config(table_config: dict, table_name: str) -> dict:
     tbl_attributes_list = table_config[table_name].split(sep=",")
     parsed_values = {}
+    print(tbl_attributes_list)
     for column in tbl_attributes_list:
         column = column.strip()
         if bool(re.search(r"PRIMARY KEY", column, re.IGNORECASE)):
             continue
+        elif bool(re.search(r"FOREIGN KEY", column, re.IGNORECASE)):
+            col_to_list = column.split(sep=" ")
+            concat_key = col_to_list[0] + " " + col_to_list[1]
+            parsed_values[concat_key] = col_to_list[2] + " " + col_to_list[3]
         else:
             col_to_list = column.split(sep=" ")
             if bool(re.search(r"date", col_to_list[0], re.IGNORECASE)):
@@ -29,18 +33,38 @@ def parse_column_config(table_config: dict, table_name: str) -> dict:
                 parsed_values[col_to_list[0]] = col_to_list[1]
     return parsed_values
 
+def restricted_column_options(table_config: dict) -> dict:
+    options = {}
+    for key, val in table_config.items():
+        parsed_key = re.split("[()]", key)
+        match parsed_key:
+            case ["FOREIGN KEY", table, _]:
+                parsed_val = re.split("[( )]", val)
+                options[table] = {parsed_val[1]: parsed_val[2]}
+    return options
+
+def option_list_from_table_values(session_mgr: SessionManager,table: str, column: str) -> list:
+    df = session_mgr.read(session_mgr.tables[table])
+    if df.empty:
+        return [f"No selectable values found in table '{table}'"]
+    dict_of_options = {}
+    for d in df.to_dict(orient='records'):
+        formatted = ' - '.join([f"{value}" for value in d.values()])
+        dict_of_options[formatted] = d[column]
+    return dict_of_options
 
 def formfactory(table_name: str, submit_text: str, session_mgr: SessionManager) -> dict:
     table_config = session_mgr.communicate_table_attributes(table_name)
     parsed_config = parse_column_config(table_config, table_name)
+    restricted_value_columns = restricted_column_options(parsed_config)
     values = {}
     for key, value in parsed_config.items():
-        # print(f"Running for {key} and {value}")
-        value_options = columns_value_options_from_db(table_name=table_name, column_name=key, session_mngr=session_mgr)
-        if len(value_options):
-            print("I am in selection")
-            input_value = st.selectbox(value_options)
-            values[key] = input_value
+        if key in restricted_value_columns.keys():
+            table, column = next(iter(restricted_value_columns[key].items()))
+            options = option_list_from_table_values(session_mgr, table, column)
+            options_display = [option for option in options.keys()]
+            selection_value = st.selectbox(key, options_display)
+            values[key] = options[selection_value]
         elif value in ("TEXT"):
             input_value = st.text_input(key)
             values[key] = input_value

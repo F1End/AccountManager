@@ -87,8 +87,8 @@ class SessionManager:
             values = [self.db_manager.to_dbtime(for_date), acc_id, int(row['sec_id']), int(row["quantity"])]
             self.db_manager.update_table(self.tables["positions"], values)
 
-    def read(self, table: str) -> pd.DataFrame:
-        df = self.db_manager.read_table(table=table)
+    def read(self, table: str, columns: Optional[list] = None, filters: Optional[dict] = None) -> pd.DataFrame:
+        df = self.db_manager.read_table(table=table, columns=columns, filters=filters)
         return df
 
     def generate_summary(self) -> pd.DataFrame:

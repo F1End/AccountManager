@@ -56,6 +56,10 @@ database:
           type: TEXT
         - name: recorded_date
           type: TEXT
+        - name: FOREIGN KEY(sec_id)
+          type: REFERENCES securities(sec_id)
+        - name: FOREIGN KEY(acc_id)
+          type: REFERENCES accounts(id)
     fx_rates:
       columns:
         - name: nominator

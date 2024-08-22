@@ -8,7 +8,7 @@ session state setup at start to include hide/show operator keys
 import streamlit as st
 
 from tools.util import st_state_changer, formfactory, show_any_tbl
-import  tools.request_builder as rb
+import tools.request_builder as rb
 
 states = {"CurrentDB": None,
           "View": False,
@@ -173,6 +173,10 @@ if st.session_state["Settings"]:
             st_state_changer("DBSettings")
     with col2:
         st.button("Other Settings")
+
+    with col3:
+        if st.button("Initiate new DB"):
+            app_session.initiate_db()
 
     if st.session_state["DBSettings"]:
         centercols = st.columns([1, 1, 1])

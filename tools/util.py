@@ -16,7 +16,6 @@ def st_state_changer(state_value: str, ):
 def parse_column_config(table_config: dict, table_name: str) -> dict:
     tbl_attributes_list = table_config[table_name].split(sep=",")
     parsed_values = {}
-    print(tbl_attributes_list)
     for column in tbl_attributes_list:
         column = column.strip()
         if bool(re.search(r"PRIMARY KEY", column, re.IGNORECASE)):
@@ -38,9 +37,9 @@ def restricted_column_options(table_config: dict) -> dict:
     for key, val in table_config.items():
         parsed_key = re.split("[()]", key)
         match parsed_key:
-            case ["FOREIGN KEY", table, _]:
+            case ["FOREIGN KEY", column, _]:
                 parsed_val = re.split("[( )]", val)
-                options[table] = {parsed_val[1]: parsed_val[2]}
+                options[column] = {parsed_val[1]: parsed_val[2]}
     return options
 
 def option_list_from_table_values(session_mgr: SessionManager,table: str, column: str) -> list:
@@ -53,16 +52,26 @@ def option_list_from_table_values(session_mgr: SessionManager,table: str, column
         dict_of_options[formatted] = d[column]
     return dict_of_options
 
-def formfactory(table_name: str, submit_text: str, session_mgr: SessionManager) -> dict:
+def build_form_configs(table_name: str, session_mgr: SessionManager) -> (dict, dict):
     table_config = session_mgr.communicate_table_attributes(table_name)
     parsed_config = parse_column_config(table_config, table_name)
     restricted_value_columns = restricted_column_options(parsed_config)
+    return parsed_config, restricted_value_columns
+
+def build_val_column_selection(restricted_value_columns: dict, column: str,
+                                          session_mgr: SessionManager) -> (dict, list):
+    table, column = next(iter(restricted_value_columns[column].items()))
+    options = option_list_from_table_values(session_mgr, table, column)
+    options_display = [option for option in options.keys()]
+    return options, options_display
+
+def formfactory(table_name: str, submit_text: str, session_mgr: SessionManager) -> dict:
+    parsed_config, restricted_value_columns = build_form_configs(table_name, session_mgr)
     values = {}
     for key, value in parsed_config.items():
         if key in restricted_value_columns.keys():
-            table, column = next(iter(restricted_value_columns[key].items()))
-            options = option_list_from_table_values(session_mgr, table, column)
-            options_display = [option for option in options.keys()]
+            options, options_display = build_val_column_selection(restricted_value_columns, key,
+                                                                  session_mgr)
             selection_value = st.selectbox(key, options_display)
             values[key] = options[selection_value]
         elif value in ("TEXT"):
